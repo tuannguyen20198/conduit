@@ -43,28 +43,35 @@ interface ArticleFormProps {
   apiErrors: string[];
 }
 
+// Define a more readable structure for the error field type and error handling functions
+
+// Type for the error fields
+type ErrorField =
+  | "tags"
+  | "title"
+  | "description"
+  | "body"
+  | "root"
+  | `root.${string}`
+  | `tags.${number}`;
+
+// Function type for setting errors
+type SetErrorFunction = (
+  field: ErrorField,
+  error: { type: string; message: string }
+) => void;
+
+// Function type for clearing errors
+type ClearErrorFunction = (field: ErrorField) => void;
+
+// Refactor of FormTagsProps interface
 interface FormTagsProps {
+  // Handler for changes in tags
   onTagsChange: (tags: string[]) => void;
-  setError: (
-    field:
-      | "tags"
-      | "title"
-      | "description"
-      | "body"
-      | "root"
-      | `root.${string}`
-      | `tags.${number}`,
-    error: { type: string; message: string }
-  ) => void;
-  clearErrors: (
-    field:
-      | "tags"
-      | "title"
-      | "description"
-      | "body"
-      | "root"
-      | `root.${string}`
-      | `tags.${number}`
-  ) => void;
-  defaultTags: string[];
+
+  // Function for setting an error for a specific field
+  setError: SetErrorFunction;
+
+  // Function for clearing an error for a specific field
+  clearErrors: ClearErrorFunction;
 }

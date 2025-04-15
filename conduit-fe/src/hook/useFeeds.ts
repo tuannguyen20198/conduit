@@ -58,36 +58,7 @@ const useFeeds = () => {
     return () => window.removeEventListener("hashchange", handleHashChange);
   }, []);
 
-  // // Fetch articles cho tab hiện tại, tags và user preferences
-  // const fetchArticles = async () => {
-  //   setIsLoading(true);
-  //   try {
-  //     const startTime = Date.now(); // Thời gian bắt đầu
-  //     await simulateDelay(100); // Giả lập độ trễ 1 giây
-  //     let url = "/articles";
-  //     let params: any = {
-  //       offset: (currentPage - 1) * articlesPerPage,
-  //       limit: articlesPerPage,
-  //     };
-
-  //     if (activeTab === "your" && authToken) {
-  //       url = "/articles/feed"; // Endpoint cho "Your Feed"
-  //     } else if (activeTab === "global") {
-  //       url = "/articles"; // Global feed
-  //     } else if (activeTab === "tag" && selectedTags.length > 0) {
-  //       params = { ...params, tag: selectedTags.join(",") }; // Truyền tất cả tags đã chọn
-  //     }
-
-  //     // Gọi API
-  //     const response = await api.get(url, { params });
-  //     setArticles(response.data.articles);
-  //     setTotalArticles(response.data.articlesCount);
-  //   } catch (err) {
-  //     setError("Failed to load articles");
-  //   } finally {
-  //     setIsLoading(false);
-  //   }
-  // };
+  // Fetch articles
   const fetchArticles = async () => {
     setIsLoading(true);
     try {
@@ -200,8 +171,8 @@ const useFeeds = () => {
   const handleFollow = async (username: string, following: boolean) => {
     try {
       const updatedUser = following
-        ? await unfollowUser(username) // nếu đang follow, gọi API unfollow
-        : await followUser(username); // nếu chưa follow, gọi API follow
+        ? await unfollowUser(username)
+        : await followUser(username);
 
       // Lưu trạng thái follow vào localStorage
       const followingData = JSON.parse(
@@ -212,11 +183,6 @@ const useFeeds = () => {
 
       // Cập nhật lại bài viết sau khi thực hiện hành động follow/unfollow
       setArticles((prevArticles) => {
-        if (prevArticles && !Array.isArray(prevArticles)) {
-          console.error("prevArticles is not an array:", prevArticles);
-          return []; // Trả về mảng rỗng nếu không phải mảng
-        }
-
         return Array.isArray(prevArticles)
           ? prevArticles.map((article) =>
               article.author.username === username
@@ -224,7 +190,7 @@ const useFeeds = () => {
                     ...article,
                     author: {
                       ...article.author,
-                      following: updatedUser.following, // Cập nhật trạng thái follow của tác giả bài viết
+                      following: updatedUser.following,
                     },
                   }
                 : article
@@ -273,7 +239,6 @@ const useFeeds = () => {
       const newHash = newTags.join(",");
       window.location.hash = newHash;
 
-      // ✅ Nếu không còn tag nào => trở lại Global
       if (newTags.length === 0) {
         setActiveTab("global");
       } else {

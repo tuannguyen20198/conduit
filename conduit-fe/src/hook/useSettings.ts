@@ -1,8 +1,7 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, SetStateAction } from "react";
 import { useAuth } from "../context/AuthContext";
 import { updateUser } from "@/lib/api";
 import { useNavigate } from "react-router-dom";
-import { SettingsFormData } from "@/interfaces/settings";
 
 export const useSettings = () => {
   const { user, setUser, logout } = useAuth();
@@ -14,6 +13,10 @@ export const useSettings = () => {
     bio: "",
     email: "",
     password: "",
+    token: "",
+    setUser: function (value: SetStateAction<User | null>): void {
+      throw new Error("Function not implemented.");
+    },
   };
 
   const [formData, setFormData] = useState<SettingsFormData>(defaultFormData);
@@ -29,6 +32,8 @@ export const useSettings = () => {
         bio: user.bio || "",
         email: user.email || "",
         password: "",
+        token: user.token || "",
+        setUser: defaultFormData.setUser,
       };
       setFormData(newUserData);
       setOriginalData(newUserData); // Cập nhật originalData để so sánh đúng

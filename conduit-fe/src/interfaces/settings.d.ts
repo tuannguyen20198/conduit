@@ -13,9 +13,14 @@ interface User {
   bio: string;
   email: string;
 }
-
-interface SettingsFormData extends User {
+interface SettingsFormData {
+  image: string;
+  username: string;
+  bio: string;
+  email: string;
   password?: string;
+  token: string;
+  setUser: (value: SetStateAction<User | null>) => void;
 }
 
 interface SettingsFormProps {
