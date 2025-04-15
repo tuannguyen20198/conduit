@@ -39,19 +39,60 @@ const useFeeds = () => {
 
   // Cập nhật khi URL hash thay đổi
   useEffect(() => {
-    const hash = window.location.hash.replace("#", "");
-    const tagsFromHash = hash ? hash.split(",") : [];
-    if (tagsFromHash.length > 0) {
-      setSelectedTags(tagsFromHash); // Chọn các tag từ URL hash
-      setActiveTab("tag"); // Chuyển sang tab tag
-    }
-  }, []); // Chạy một lần khi component mount
-  // Fetch articles cho tab hiện tại, tags và user preferences
+    const handleHashChange = () => {
+      const hash = window.location.hash.slice(1); // bỏ dấu #
+      const tagsFromHash = hash ? hash.split(",") : [];
+
+      setSelectedTags(tagsFromHash);
+
+      if (tagsFromHash.length > 0) {
+        setActiveTab("tag");
+      } else {
+        setActiveTab("global");
+      }
+    };
+
+    handleHashChange(); // chạy lần đầu
+    window.addEventListener("hashchange", handleHashChange);
+
+    return () => window.removeEventListener("hashchange", handleHashChange);
+  }, []);
+
+  // // Fetch articles cho tab hiện tại, tags và user preferences
+  // const fetchArticles = async () => {
+  //   setIsLoading(true);
+  //   try {
+  //     const startTime = Date.now(); // Thời gian bắt đầu
+  //     await simulateDelay(100); // Giả lập độ trễ 1 giây
+  //     let url = "/articles";
+  //     let params: any = {
+  //       offset: (currentPage - 1) * articlesPerPage,
+  //       limit: articlesPerPage,
+  //     };
+
+  //     if (activeTab === "your" && authToken) {
+  //       url = "/articles/feed"; // Endpoint cho "Your Feed"
+  //     } else if (activeTab === "global") {
+  //       url = "/articles"; // Global feed
+  //     } else if (activeTab === "tag" && selectedTags.length > 0) {
+  //       params = { ...params, tag: selectedTags.join(",") }; // Truyền tất cả tags đã chọn
+  //     }
+
+  //     // Gọi API
+  //     const response = await api.get(url, { params });
+  //     setArticles(response.data.articles);
+  //     setTotalArticles(response.data.articlesCount);
+  //   } catch (err) {
+  //     setError("Failed to load articles");
+  //   } finally {
+  //     setIsLoading(false);
+  //   }
+  // };
   const fetchArticles = async () => {
     setIsLoading(true);
     try {
-      const startTime = Date.now(); // Thời gian bắt đầu
-      await simulateDelay(100); // Giả lập độ trễ 1 giây
+      const startTime = Date.now();
+      await simulateDelay(100);
       let url = "/articles";
       let params: any = {
         offset: (currentPage - 1) * articlesPerPage,
@@ -59,14 +100,19 @@ const useFeeds = () => {
       };
 
       if (activeTab === "your" && authToken) {
-        url = "/articles/feed"; // Endpoint cho "Your Feed"
+        url = "/articles/feed";
       } else if (activeTab === "global") {
-        url = "/articles"; // Global feed
-      } else if (activeTab === "tag" && selectedTags.length > 0) {
-        params = { ...params, tag: selectedTags.join(",") }; // Truyền tất cả tags đã chọn
+        url = "/articles";
+      } else if (activeTab === "tag") {
+        if (selectedTags.length > 0) {
+          params = { ...params, tag: selectedTags.join(",") };
+        } else {
+          // ✅ Fallback về Global nếu không còn tag
+          setActiveTab("global");
+          return; // thoát luôn, tránh gọi API lỗi
+        }
       }
 
-      // Gọi API
       const response = await api.get(url, { params });
       setArticles(response.data.articles);
       setTotalArticles(response.data.articlesCount);
@@ -219,20 +265,23 @@ const useFeeds = () => {
   // Cập nhật khi click tag
   const handleTagClick = (tag: string) => {
     setSelectedTags((prevTags) => {
-      // Nếu tag đã có trong selectedTags thì xóa nó
-      if (prevTags.includes(tag)) {
-        return prevTags.filter((t) => t !== tag);
+      const newTags = prevTags.includes(tag)
+        ? prevTags.filter((t) => t !== tag)
+        : [...prevTags, tag];
+
+      // Update hash
+      const newHash = newTags.join(",");
+      window.location.hash = newHash;
+
+      // ✅ Nếu không còn tag nào => trở lại Global
+      if (newTags.length === 0) {
+        setActiveTab("global");
       } else {
-        // Nếu tag chưa có thì thêm vào selectedTags
-        return [...prevTags, tag];
+        setActiveTab("tag");
       }
+
+      return newTags;
     });
-
-    // Chuyển sang tab tag khi người dùng chọn tag
-    setActiveTab("tag");
-
-    // Cập nhật URL hash với các tag đã chọn
-    window.location.hash = selectedTags.join(",");
   };
 
   return {

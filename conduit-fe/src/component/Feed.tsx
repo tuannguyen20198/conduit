@@ -40,10 +40,11 @@ const Feed: React.FC = () => {
               {authToken && (
                 <li className="nav-item">
                   <button
-                    className={`nav-link ${activeTab === "your" ? "active" : ""}`}
+                    className={`nav-link ${activeTab === "your" ? "active" : ""
+                      }`}
                     onClick={() => {
                       setActiveTab("your");
-                      setSelectedTags([]);  // Reset selected tags when switching to 'Your Feed'
+                      setSelectedTags([]); // Reset selected tags when switching to 'Your Feed'
                       setCurrentPage(1);
                     }}
                   >
@@ -56,8 +57,9 @@ const Feed: React.FC = () => {
                   className={`nav-link ${activeTab === "global" ? "active" : ""}`}
                   onClick={() => {
                     setActiveTab("global");
-                    setSelectedTags([]);  // Reset selected tags when switching to 'Global Feed'
+                    setSelectedTags([]); // Clear tags
                     setCurrentPage(1);
+                    window.location.hash = ""; // ✅ clear hash để trigger Global Feed
                   }}
                 >
                   Global Feed
@@ -68,13 +70,15 @@ const Feed: React.FC = () => {
               {selectedTags.length > 0 && (
                 <li className="nav-item">
                   <button
-                    className={`nav-link ${activeTab === "tag" ? "active" : ""}`}
+                    className={`nav-link ${activeTab === "tag" ? "active" : ""
+                      }
+                      `}
                     onClick={() => {
                       setActiveTab("tag");
                       setCurrentPage(1);
                     }}
                   >
-                    #{selectedTags[0]} {/* Hiển thị tên tag đã chọn */}
+                     #{selectedTags.join(", ")}
                   </button>
                 </li>
               )}
@@ -97,19 +101,29 @@ const Feed: React.FC = () => {
                 <div className="article-meta d-flex justify-content-between align-items-center">
                   <div className="d-flex align-items-center">
                     <Link to={`/profile/${article.author.username}`}>
-                      <img src={article.author.image} alt={article.author.username} />
+                      <img
+                        src={article.author.image}
+                        alt={article.author.username}
+                      />
                     </Link>
                     <div className="info">
-                      <p className="author">
-                        {article.author.username}
-                      </p>
-                      <span className="date">{new Date(article.createdAt).toDateString()}</span>
+                      <p className="author">{article.author.username}</p>
+                      <span className="date">
+                        {new Date(article.createdAt).toDateString()}
+                      </span>
                     </div>
                     <button
-                      className={`btn btn-sm border-0 shadow-none pull-xs-right focus:ring-0 outline-none ${
-                        article.favorited ? "btn-primary" : "btn-outline-primary"
-                      }`}
-                      onClick={() => handleLike(article.slug, article.favorited, article.favoritesCount)}
+                      className={`btn btn-sm border-0 shadow-none pull-xs-right focus:ring-0 outline-none ${article.favorited
+                          ? "btn-primary"
+                          : "btn-outline-primary"
+                        }`}
+                      onClick={() =>
+                        handleLike(
+                          article.slug,
+                          article.favorited,
+                          article.favoritesCount
+                        )
+                      }
                     >
                       <i className="ion-heart"></i> {article.favoritesCount}
                     </button>
@@ -121,7 +135,10 @@ const Feed: React.FC = () => {
                   <span>Read more...</span>
                   <ul className="tag-list">
                     {article.tagList.map((tag, index) => (
-                      <li key={index} className="tag-default tag-pill tag-outline">
+                      <li
+                        key={index}
+                        className="tag-default tag-pill tag-outline"
+                      >
                         {tag}
                       </li>
                     ))}
@@ -135,9 +152,9 @@ const Feed: React.FC = () => {
             tags={tags || []}
             selectedTags={selectedTags}
             setSelectedTags={(tags: string[]) => {
-              setIsLoading(true);  // Hiển thị spinner ngay lập tức
+              setIsLoading(true); // Hiển thị spinner ngay lập tức
               setSelectedTags(tags); // Khi chọn tag, cập nhật selectedTags
-              setCurrentPage(1);  // Reset lại trang
+              setCurrentPage(1); // Reset lại trang
             }}
           />
         </div>
