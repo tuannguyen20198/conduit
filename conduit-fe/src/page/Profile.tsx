@@ -105,22 +105,22 @@ const Profile = () => {
             <div className="articles-toggle">
               <ul className="nav nav-pills outline-active">
                 <li className="nav-item">
-                  <a
+                  <Link
                     className={`nav-link ${activeTab === 'myArticles' ? 'active' : ''}`}
                     onClick={() => handleTabClick('myArticles')}
-                    href="#"
+                    to="#"
                   >
                     My Articles
-                  </a>
+                  </Link>
                 </li>
                 <li className="nav-item">
-                  <a
+                  <Link
                     className={`nav-link ${activeTab === 'favoritedArticles' ? 'active' : ''}`}
                     onClick={() => handleTabClick('favoritedArticles')}
-                    href="#"
+                    to="#"
                   >
                     Favorited Articles
-                  </a>
+                  </Link>
                 </li>
               </ul>
             </div>
